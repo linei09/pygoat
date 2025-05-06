@@ -45,7 +45,12 @@ jobs:
       sh install-scout.sh
       echo ${{ secrets.REPO_PASS }} | docker login -u ${{ secrets.REPO_USER }} --password-stdin
       docker scout quickview
-      docker scout cves 
+      docker scout cves --format sarif --output alpine.sarif.json alpine
+   - name: upload artifact
+     uses: actions/upload-artifact@v4.6.2
+     with:
+      name: dockerScout
+      path: alpine.sarif.json
 
 
 
