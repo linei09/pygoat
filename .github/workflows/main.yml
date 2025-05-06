@@ -27,4 +27,25 @@ jobs:
      with:
       name: artifact
       path: bandit-rp.json
-   
+
+      
+ image_scan:
+  name: Docker scout
+  runs-on: ubuntu-lastest
+  steps:
+   - name: checkout code
+     uses: actions/checkout@v4.2.2
+   - name: docker setup docker
+     uses: docker/setup-docker-action@b60f85385d03ac8acfca6d9996982511d8620a19
+   - name: Build Docker Image
+     run: docker build -f Dockerfile -t myapp:latest .
+   - name: docker scout scan
+     run: |
+      - curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
+      - sh install-scout.sh
+      - echo ${{ secrets.REPO_PWD }} | docker login -u ${{ secrets.REPO_USER }} --password-stdin
+      - docker scout quickview
+      - docker scout cve
+  
+  
+  
