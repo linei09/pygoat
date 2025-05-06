@@ -44,13 +44,11 @@ jobs:
       - curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
       - sh install-scout.sh
       - echo ${{ secrets.REPO_PWD }} | docker login -u ${{ secrets.REPO_USER }} --password-stdin
-      - docker scout quickview --format markdown -o dockerScoutQuickview.md
-      - docker scout cve --format plaintext -o dockerScoutCve-rp.plaintext
+      - docker scout quickview 
+      - docker scout cve --format sarif --output alpine.sarif.json alpine
    - name: upload artifact
      uses: actions/upload-artifact@v4.6.2
      if: always()
      with:
       name: docker-scout-reports
-      path: |
-        dockerScoutQuickview.md
-        dockerScoutCve-rp.plaintext
+      path: alpine.sarif.json
