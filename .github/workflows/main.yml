@@ -3,19 +3,40 @@ name: CI
 on: [push]
 
 jobs:
- image_scan:
-   name: Build Image and Run Image Scan
+ sast_scan:
+   name: Run Bandit Scan
    runs-on: ubuntu-latest
 
    steps:
    - name: Checkout code
-     uses: actions/checkout@v2
+     uses: actions/checkout@v4.2.2
 
-   - name: Set up Docker
-     uses: docker-practice/actions-setup-docker@v1
+   - name: Set up Python
+     uses: actions/setup-python@v5.6.0
      with:
-      docker_version: '20.10.7'
+       python-version: 3.8
 
+   - name: Install Bandit
+     run: pip install bandit
+
+   - name: Run Bandit Scan
+     run: bandit -r . -ll -ii -f json -o bandit-rp.json
+   - name: upload artifact
+     uses: actions/upload-artifact@v4.6.2
+     if: always()
+     with:
+      name: artifact
+      path: bandit-rp.json
+
+      
+ image_scan:
+  name: Docker scout
+  runs-on: ubuntu-latest
+  steps:
+   - name: checkout code
+     uses: actions/checkout@v4.2.2
+   - name: docker setup docker
+     uses: docker/setup-docker-action@v4.3.0
    - name: Build Docker Image
      run: docker build -f Dockerfile -t myapp:latest .
    - name: docker scout scan
@@ -25,6 +46,3 @@ jobs:
       - echo ${{ secrets.REPO_PWD }} | docker login -u ${{ secrets.REPO_USER }} --password-stdin
       - docker scout quickview
       - docker scout cve
-  
-  
-  
